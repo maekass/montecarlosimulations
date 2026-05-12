@@ -301,7 +301,7 @@ Outcome Clustering Analysis
 3. **Run Simulation**: 1,000-10,000 scenarios recommended
 4. **Analyze Results**: Focus on survival probability and risk metrics
 
-### �️ SQL Implementation (PostgreSQL)
+### SQL Implementation (PostgreSQL)
 
 **Step 1: Set up database tables**
 ```sql
@@ -516,7 +516,7 @@ prep.create_tableau_data_extract()
 - 📋 **Export Options**: PDF, Excel, image formats
 - 🔗 **Data Blending**: Combine multiple simulation types
 
-### �📋 Sample Parameters
+### �� Sample Parameters
 ```
 Conservative Endowment:
 • Initial Value: $10,000,000
