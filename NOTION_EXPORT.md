@@ -11,67 +11,162 @@ This document provides Monte Carlo simulation tools for non-profit endowment man
 ### 🎯 Sustainability Planning
 Tests whether the portfolio can support planned annual payouts (e.g., $315,000 yearly on a $10M portfolio) without depleting the principal.
 
-**Visual Output:**
+**Endowment Sustainability Flow:**
+```mermaid
+flowchart TD
+    A[Start: $10M Endowment] --> B{Annual Return?}
+    B -->|+8%| C[Portfolio Grows]
+    B -->|-5%| D[Portfolio Declines]
+    C --> E[Apply Annual Payout]
+    D --> E
+    E --> F{Portfolio > 0?}
+    F -->|Yes| G{Year < 20?}
+    F -->|No| H[Endowment Depleted]
+    G -->|Yes| B
+    G -->|No| I[Final Value]
+    
+    style A fill:#e1f5fe
+    style I fill:#c8e6c9
+    style H fill:#ffcdd2
 ```
-📊 Endowment Value Over 20 Years
-$10M ────────────────────┐
-      ╱                  ╲
-$8M  ╱                    ╲
-     ╱                      ╲
-$6M ╱                        ╲
-    ╱                          ╲
-$4M ╱                            ╲
-   ╱                              ╲
-$2M ╱                                ╲
-  ╱                                  ╲
-$0  └─────────────────────────────────
-   0    5    10   15   20   Years
+
+**Decision Tree for Sustainability:**
+```
+🌳 Endowment Decision Tree
+
+Year 0: $10,000,000
+├── Good Year (+8%): $10,800,000 - $315,000 = $10,485,000
+│   ├── Good Year (+8%): $11,323,800 - $324,450 = $10,999,350
+│   │   └── Continue 20 years → ✅ Sustainable (95% survival)
+│   └── Bad Year (-5%): $9,960,750 - $324,450 = $9,636,300
+│       └── Continue 20 years → ⚠️ Marginal (78% survival)
+└── Bad Year (-5%): $9,500,000 - $315,000 = $9,185,000
+    ├── Good Year (+8%): $9,919,800 - $324,450 = $9,595,350
+    │   └── Continue 20 years → ⚠️ Risky (65% survival)
+    └── Bad Year (-5%): $8,715,582 - $324,450 = $8,391,132
+        └── Continue 20 years → ❌ Unsustainable (42% survival)
 ```
 
 ### 💸 Withdrawal Strategies
 Evaluates the impact of fixed-dollar vs. percentage-based spending rules (e.g., 5% vs. 15% payout) on portfolio survival.
 
-**Visual Comparison:**
+**Withdrawal Strategy Decision Flow:**
+```mermaid
+flowchart TD
+    A[Choose Strategy] --> B{Fixed Dollar or Percentage?}
+    B -->|Fixed Dollar| C[Annual: $315,000]
+    B -->|Percentage| D[Annual: Portfolio × Rate]
+    C --> E{Market Performance}
+    D --> E
+    E -->|Bull Market| F[Portfolio Grows]
+    E -->|Bear Market| G[Portfolio Shrinks]
+    F --> H{20 Years Complete?}
+    G --> H
+    H -->|Yes| I[Calculate Final Value]
+    H -->|No| E
+    
+    style A fill:#e8f5e8
+    style I fill:#fff3e0
 ```
-Strategy Comparison (20-Year Horizon)
-┌─────────────────┬─────────────┬─────────────┐
-│ Strategy        │ Survival    │ Final Value │
-├─────────────────┼─────────────┼─────────────┤
-│ Fixed $315K     │     78%     │    $8.2M    │
-│ 5% Percentage   │     85%     │    $9.1M    │
-│ 10% Percentage  │     62%     │    $6.3M    │
-│ 15% Percentage  │     41%     │    $4.1M    │
-└─────────────────┴─────────────┴─────────────┘
+
+**Strategy Impact Matrix:**
+```
+💰 Withdrawal Strategy Analysis
+
+┌─────────────────────────────────────────────────────────┐
+│ Strategy          │ Risk Level │ Expected Survival │ Final Range │
+├─────────────────────────────────────────────────────────┤
+│ Fixed $315K       │ 🟢 Low     │ 78%               │ $6-12M     │
+│ 3% Percentage     │ 🟢 Low     │ 92%               │ $8-15M     │
+│ 5% Percentage     │ 🟡 Medium  │ 85%               │ $7-13M     │
+│ 7% Percentage     │ 🟡 Medium  │ 68%               │ $5-11M     │
+│ 10% Percentage    │ 🔴 High    │ 62%               │ $4-9M      │
+│ 15% Percentage    │ 🔴 Very High│ 41%              │ $2-6M      │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### 📈 Asset Allocation Testing
 Assesses the risk of different portfolios, such as comparing traditional, conservative allocations to more aggressive, modern allocations (e.g., 30% bonds/70% stocks).
 
-**Risk-Return Tradeoff:**
+**Asset Allocation Decision Flow:**
+```mermaid
+flowchart TD
+    A[Select Allocation] --> B{Risk Tolerance?}
+    B -->|Conservative| C[30% Stocks / 70% Bonds]
+    B -->|Moderate| D[60% Stocks / 40% Bonds]
+    B -->|Aggressive| E[70% Stocks / 30% Bonds]
+    B -->|Very Aggressive| F[90% Stocks / 10% Bonds]
+    
+    C --> G[Expected Return: 5.2%]
+    D --> H[Expected Return: 7.6%]
+    E --> I[Expected Return: 8.8%]
+    F --> J[Expected Return: 10.4%]
+    
+    G --> K[Volatility: 8%]
+    H --> L[Volatility: 12%]
+    I --> M[Volatility: 16%]
+    J --> N[Volatility: 20%]
+    
+    K --> O[Survival: 95%]
+    L --> P[Survival: 85%]
+    M --> Q[Survival: 73%]
+    N --> R[Survival: 61%]
+    
+    style C fill:#c8e6c9
+    style F fill:#ffcdd2
 ```
-Portfolio Performance Comparison
-Conservative (30/70):   ◆ Low Risk, Low Return
-Balanced (60/40):       ◆ Moderate Risk, Moderate Return  
-Aggressive (70/30):     ◆ High Risk, High Return
-Ultra-Aggressive (90/10):◆ Very High Risk, Very High Return
 
-Risk → ──────────────────────────→
-       ●    ●   ●         ●
-Return → ──────────────────────────→
+**Risk-Return Spectrum:**
+```
+📊 Asset Allocation Risk Spectrum
+
+Conservative (30/70)     Balanced (60/40)     Aggressive (70/30)     Very Aggressive (90/10)
+🟢                       🟡                      🟠                       🔴
+Low Risk                 Medium Risk           High Risk              Very High Risk
+5.2% Return              7.6% Return           8.8% Return            10.4% Return
+95% Survival             85% Survival          73% Survival           61% Survival
 ```
 
 ### 🚨 Crisis Management
 Simulates "horrible year" scenarios, such as a 30% market drop, to test if an endowment can survive extreme volatility.
 
-**Crisis Scenario Impact:**
+**Crisis Response Flow:**
+```mermaid
+flowchart TD
+    A[Normal Market] --> B{Crisis Event?}
+    B -->|No| C[Normal Growth]
+    B -->|Yes| D[Market Crash -30%]
+    D --> E{Recovery Strategy}
+    E -->|Maintain Strategy| F[Slow Recovery]
+    E -->|Reduce Spending| G[Faster Recovery]
+    E -->|Rebalance Portfolio| H[Optimized Recovery]
+    
+    F --> I{5 Years Later}
+    G --> I
+    H --> I
+    
+    I --> J[Assess Long-term Impact]
+    
+    style D fill:#ffcdd2
+    style H fill:#c8e6c9
 ```
-Market Crash Simulation (-30% Drop)
-Normal Market: ──────────────────────
-Crisis Year:   ╲_____________________
-               ╲
-Recovery:      ╱╲___________________
-               ╱  ╲
-Survival Rate: 73% (vs 95% in normal market)
+
+**Crisis Scenario Comparison:**
+```
+🌊 Market Crisis Impact Analysis
+
+Normal Market Path:     ──────────────────────────────────────
+                        $10M → $15M (95% survival)
+
+Crisis Year Path:       ╲_______________________
+                        $10M → $7M → $12M (73% survival)
+
+Crisis + Reduced Spending:
+                        ╲_______________________
+                        $10M → $7M → $14M (82% survival)
+
+Crisis + Rebalancing:   ╲_______________________
+                        $10M → $7M → $13M (78% survival)
 ```
 
 ---
@@ -206,7 +301,108 @@ Outcome Clustering Analysis
 3. **Run Simulation**: 1,000-10,000 scenarios recommended
 4. **Analyze Results**: Focus on survival probability and risk metrics
 
-### 📋 Sample Parameters
+### �️ SQL Implementation (PostgreSQL)
+
+**Step 1: Set up database tables**
+```sql
+-- Create endowment parameters table
+CREATE TABLE endowment_parameters (
+    id SERIAL PRIMARY KEY,
+    initial_value DECIMAL(20,2) NOT NULL,
+    annual_payout DECIMAL(20,2) NOT NULL,
+    equity_allocation DECIMAL(5,4) DEFAULT 0.70,
+    equity_return_mean DECIMAL(10,6) DEFAULT 0.08,
+    equity_return_std DECIMAL(10,6) DEFAULT 0.16,
+    bond_return_mean DECIMAL(10,6) DEFAULT 0.04,
+    bond_return_std DECIMAL(10,6) DEFAULT 0.08,
+    inflation_rate DECIMAL(10,6) DEFAULT 0.03,
+    time_horizon INTEGER DEFAULT 20,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create simulation results table
+CREATE TABLE simulation_results (
+    id SERIAL PRIMARY KEY,
+    simulation_id INTEGER NOT NULL,
+    iteration INTEGER NOT NULL,
+    year INTEGER NOT NULL,
+    portfolio_value DECIMAL(20,2) NOT NULL,
+    equity_return DECIMAL(10,6),
+    bond_return DECIMAL(10,6),
+    scenario_type VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Step 2: Insert endowment parameters**
+```sql
+INSERT INTO endowment_parameters (
+    initial_value, 
+    annual_payout, 
+    equity_allocation,
+    equity_return_mean, 
+    equity_return_std,
+    bond_return_mean, 
+    bond_return_std,
+    inflation_rate, 
+    time_horizon
+) VALUES (
+    10000000.00,  -- $10M initial value
+    315000.00,   -- $315K annual payout
+    0.70,        -- 70% equity allocation
+    0.08,        -- 8% equity return mean
+    0.16,        -- 16% equity return std
+    0.04,        -- 4% bond return mean
+    0.08,        -- 8% bond return std
+    0.03,        -- 3% inflation rate
+    20           -- 20 year horizon
+);
+```
+
+**Step 3: Run Monte Carlo simulation**
+```sql
+-- Run 1000 simulations over 20 years
+SELECT run_endowment_monte_carlo(1000, 20);
+
+-- View sample results
+SELECT 
+    iteration,
+    year,
+    portfolio_value,
+    ROUND(portfolio_value::NUMERIC / 1000000.0, 2) AS value_in_millions
+FROM simulation_results 
+WHERE iteration <= 5
+ORDER BY iteration, year;
+```
+
+**Step 4: Analyze results**
+```sql
+-- Calculate survival probability (80% threshold)
+SELECT calculate_survival_probability(0.80) AS survival_probability;
+
+-- Get percentile statistics
+SELECT 
+    percentile_5,
+    percentile_25,
+    percentile_50,
+    percentile_75,
+    percentile_95
+FROM calculate_percentile_statistics();
+
+-- View endowment statistics by year
+SELECT 
+    year,
+    COUNT(DISTINCT iteration) AS total_simulations,
+    ROUND(AVG(portfolio_value)::NUMERIC, 0) AS mean_value,
+    ROUND(STDDEV(portfolio_value)::NUMERIC, 0) AS std_value,
+    ROUND(MIN(portfolio_value)::NUMERIC, 0) AS min_value,
+    ROUND(MAX(portfolio_value)::NUMERIC, 0) AS max_value
+FROM endowment_statistics
+GROUP BY year
+ORDER BY year;
+```
+
+### �📋 Sample Parameters
 ```
 Conservative Endowment:
 • Initial Value: $10,000,000
