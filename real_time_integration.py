@@ -21,7 +21,7 @@ class RealTimeDataIntegration:
         self.data_sources = {
             'yahoo_finance': YahooFinanceAPI(),
             'alpha_vantage': AlphaVantageAPI(),
-            'mock_data': MockDataProvider()  # Fallback for testing
+            'quandl': QuandlAPI()
         }
         self.cache = {}
         self.cache_expiry = {}
@@ -257,29 +257,86 @@ class AlphaVantageAPI:
             return {}
 
 
-class MockDataProvider:
-    """Mock data provider for testing and fallback"""
+class QuandlAPI:
+    """Quandl API integration for economic and financial data"""
+    
+    def __init__(self, api_key: str = None):
+        self.api_key = api_key
+        self.base_url = "https://www.quandl.com/api/v3/datasets"
     
     def get_real_time_data(self, symbol: str) -> Optional[Dict]:
-        """Generate mock real-time data"""
+        """Get data from Quandl"""
+        if not self.api_key:
+            print("⚠️ Quandl API key required for real data")
+            return None
+        
         try:
-            # Generate realistic mock data
-            base_price = np.random.uniform(50, 500)
-            change = np.random.normal(0, base_price * 0.02)
-            daily_return = change / base_price
+            # Map common symbols to Quandl codes
+            quandl_symbol = self._map_to_quandl_symbol(symbol)
+            if not quandl_symbol:
+                return None
+            
+            url = f"{self.base_url}/{quandl_symbol}/data.json"
+            params = {
+                'api_key': self.api_key,
+                'limit': 1,
+                'order': 'desc'
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                return self._parse_quandl_data(data, symbol)
+            
+        except Exception as e:
+            print(f"Quandl API error: {e}")
+        
+        return None
+    
+    def _map_to_quandl_symbol(self, symbol: str) -> Optional[str]:
+        """Map stock symbols to Quandl database codes"""
+        mapping = {
+            'SPY': 'EOD/SPY',
+            'QQQ': 'EOD/QQQ',
+            'DIA': 'EOD/DIA',
+            'IWM': 'EOD/IWM',
+            'VTI': 'EOD/VTI',
+            'AAPL': 'EOD/AAPL',
+            'MSFT': 'EOD/MSFT',
+            'GOOGL': 'EOD/GOOGL',
+            'AMZN': 'EOD/AMZN',
+            'TSLA': 'EOD/TSLA'
+        }
+        return mapping.get(symbol.upper())
+    
+    def _parse_quandl_data(self, data: Dict, symbol: str) -> Dict:
+        """Parse Quandl response"""
+        try:
+            dataset_data = data['dataset_data']
+            if not dataset_data['data']:
+                return None
+            
+            latest_data = dataset_data['data'][0]
+            column_names = dataset_data['column_names']
+            
+            # Find column indices
+            close_idx = column_names.index('Close')
+            volume_idx = column_names.index('Volume') if 'Volume' in column_names else None
+            
+            price = latest_data[close_idx]
+            volume = latest_data[volume_idx] if volume_idx is not None else 0
             
             return {
                 'symbol': symbol,
-                'price': base_price + change,
-                'change': change,
-                'return': daily_return,
-                'volume': int(np.random.uniform(100000, 10000000)),
-                'volatility': np.random.uniform(0.01, 0.04),
+                'price': float(price),
+                'volume': int(volume) if volume else 0,
+                'volatility': 0.02,  # Would need historical data for real volatility
                 'timestamp': datetime.now().isoformat()
             }
         except Exception as e:
-            print(f"Mock data error: {e}")
-            return None
+            print(f"Error parsing Quandl data: {e}")
+            return {}
 
 
 class EconomicCalendarIntegration:
