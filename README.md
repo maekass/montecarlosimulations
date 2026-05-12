@@ -119,6 +119,98 @@ results = revenue_mc.run_simulation(years=5)
 print(f"Mean Year 5 Revenue: ${results['mean_final']:,.2f}")
 ```
 
+## Advanced Statistical Methods & ML Integration
+
+The project includes advanced simulation techniques for sophisticated endowment analysis:
+
+### Bayesian Monte Carlo
+
+```python
+from monte_carlo_simulations import BayesianEndowmentMonteCarlo
+
+# Define prior distributions for parameters
+prior_returns = {
+    'equity': {'mean': 0.08, 'std': 0.02},
+    'bond': {'mean': 0.04, 'std': 0.01}
+}
+prior_volatility = {
+    'equity': {'std': 0.16},
+    'bond': {'std': 0.08}
+}
+
+bayesian_mc = BayesianEndowmentMonteCarlo(
+    initial_value=10000000,
+    annual_payout=315000,
+    prior_returns=prior_returns,
+    prior_volatility=prior_volatility
+)
+
+results = bayesian_mc.run_simulation(years=20)
+print(f"Posterior Mean: ${results['posterior_mean']:,.2f}")
+print(f"95% Credible Interval: ${results['credible_interval_95'][0]:,.2f} - ${results['credible_interval_95'][1]:,.2f}")
+```
+
+### Latin Hypercube Sampling
+
+```python
+from monte_carlo_simulations import LatinHypercubeSamplingMonteCarlo
+
+lhs_mc = LatinHypercubeSamplingMonteCarlo(
+    initial_value=1000000,
+    returns=0.10,
+    volatility=0.20
+)
+
+results = lhs_mc.run_simulation(time_horizon=252)
+print(f"Mean Final Value: ${results['mean']:,.2f}")
+print(f"5th-95th Percentile: ${results['percentile_5']:,.2f} - ${results['percentile_95']:,.2f}")
+```
+
+### ML-Based Path Generation
+
+```python
+from monte_carlo_simulations import MLPathGenerationMonteCarlo
+
+# Generate synthetic historical paths for training
+np.random.seed(42)
+historical_paths = np.zeros((100, 100))
+for i in range(100):
+    historical_paths[i, 0] = 1000000
+    for t in range(1, 100):
+        historical_paths[i, t] = historical_paths[i, t-1] * (1 + np.random.normal(0.07, 0.14))
+
+ml_mc = MLPathGenerationMonteCarlo(
+    initial_value=1000000,
+    historical_paths=historical_paths
+)
+
+ml_mc.train_neural_network_paths()
+results = ml_mc.run_simulation(path_length=252)
+print(f"ML Generated Paths Mean: ${results['mean']:,.2f}")
+```
+
+### Outcome Clustering for Risk Segmentation
+
+```python
+from monte_carlo_simulations import OutcomeClusteringMonteCarlo
+
+cluster_mc = OutcomeClusteringMonteCarlo(
+    initial_value=1000000,
+    returns=0.10,
+    volatility=0.20
+)
+
+results = cluster_mc.run_simulation(time_horizon=252, n_clusters=3)
+
+if results['cluster_stats']:
+    print("Cluster Statistics:")
+    for cluster_id, stats in results['cluster_stats'].items():
+        print(f"  Cluster {cluster_id}: {stats['count']} paths")
+        print(f"    Mean Final: ${stats['mean_final']:,.2f}")
+        print(f"    Mean Drawdown: {stats['mean_drawdown']:.2%}")
+        print(f"    Mean Sharpe: {stats['mean_sharpe']:.2f}")
+```
+
 ## Visualizations
 
 The project includes comprehensive data visualization functions for analyzing and presenting simulation results:

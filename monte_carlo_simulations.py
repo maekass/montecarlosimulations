@@ -404,59 +404,320 @@ class AssetAllocationMonteCarlo(MonteCarloSimulator):
         """Run asset allocation comparison"""
         return self.compare_allocations(years)
 
-class CrisisManagementMonteCarlo(MonteCarloSimulator):
-    """Monte Carlo simulation for crisis management - testing extreme volatility scenarios"""
+# Advanced Statistical Methods and ML Integration for Non-Profit Endowments
+
+class BayesianEndowmentMonteCarlo(MonteCarloSimulator):
+    """Bayesian Monte Carlo simulation with prior distributions and posterior inference"""
     
-    def __init__(self, initial_value, normal_return, normal_volatility, crisis_drop, crisis_probability, 
+    def __init__(self, initial_value, annual_payout, prior_returns, prior_volatility, 
                  n_simulations=10000, random_seed=42):
         super().__init__(n_simulations, random_seed)
         self.initial_value = initial_value
-        self.normal_return = normal_return
-        self.normal_volatility = normal_volatility
-        self.crisis_drop = crisis_drop  # e.g., -0.30 for 30% market drop
-        self.crisis_probability = crisis_probability  # probability of crisis year
+        self.annual_payout = annual_payout
+        self.prior_returns = prior_returns  # dict with mean and std
+        self.prior_volatility = prior_volatility  # dict with mean and std
         
-    def simulate_with_crisis(self, years=20):
+    def sample_from_priors(self):
+        """Sample parameters from prior distributions"""
+        equity_return = np.random.normal(self.prior_returns['equity']['mean'], 
+                                        self.prior_returns['equity']['std'], self.n_simulations)
+        bond_return = np.random.normal(self.prior_returns['bond']['mean'], 
+                                      self.prior_returns['bond']['std'], self.n_simulations)
+        equity_vol = np.random.gamma(2, self.prior_volatility['equity']['std'], self.n_simulations)
+        bond_vol = np.random.gamma(2, self.prior_volatility['bond']['std'], self.n_simulations)
+        
+        return equity_return, bond_return, equity_vol, bond_vol
+    
+    def simulate_bayesian_endowment(self, years=20):
         """
-        Simulate portfolio with potential crisis years
-        Tests if endowment can survive extreme volatility scenarios
+        Bayesian simulation: sample parameters from priors, then simulate endowment
+        Returns posterior distribution of outcomes
         """
-        portfolio_values = np.zeros((self.n_simulations, years + 1))
-        portfolio_values[:, 0] = self.initial_value
+        equity_return, bond_return, equity_vol, bond_vol = self.sample_from_priors()
+        
+        endowment_values = np.zeros((self.n_simulations, years + 1))
+        endowment_values[:, 0] = self.initial_value
         
         for year in range(years):
-            # Determine which simulations experience crisis this year
-            crisis_mask = np.random.random(self.n_simulations) < self.crisis_probability
-            
-            # Normal returns
-            normal_returns = np.random.normal(self.normal_return, self.normal_volatility, self.n_simulations)
-            
-            # Apply crisis returns to affected simulations
-            returns = normal_returns.copy()
-            returns[crisis_mask] = self.crisis_drop
-            
-            portfolio_values[:, year + 1] = portfolio_values[:, year] * (1 + returns)
-            portfolio_values[:, year + 1] = np.maximum(portfolio_values[:, year + 1], 0)
+            for i in range(self.n_simulations):
+                portfolio_return = (0.7 * np.random.normal(equity_return[i], equity_vol[i]) + 
+                                   0.3 * np.random.normal(bond_return[i], bond_vol[i]))
+                endowment_values[i, year + 1] = endowment_values[i, year] * (1 + portfolio_return) - self.annual_payout
+                endowment_values[i, year + 1] = max(endowment_values[i, year + 1], 0)
+        
+        return endowment_values
+    
+    def run_simulation(self, years=20):
+        """Run Bayesian simulation with posterior inference"""
+        endowment_values = self.simulate_bayesian_endowment(years)
+        final_values = endowment_values[:, -1]
+        
+        return {
+            'endowment_values': endowment_values,
+            'final_values': final_values,
+            'posterior_mean': np.mean(final_values),
+            'posterior_std': np.std(final_values),
+            'credible_interval_95': np.percentile(final_values, [2.5, 97.5]),
+            'credible_interval_50': np.percentile(final_values, [25, 75])
+        }
+
+class LatinHypercubeSamplingMonteCarlo(MonteCarloSimulator):
+    """Monte Carlo simulation using Latin Hypercube Sampling for efficiency"""
+    
+    def __init__(self, initial_value, returns, volatility, n_simulations=10000, random_seed=42):
+        super().__init__(n_simulations, random_seed)
+        self.initial_value = initial_value
+        self.returns = returns
+        self.volatility = volatility
+        
+    def generate_lhs_samples(self, n_samples, n_dimensions):
+        """Generate Latin Hypercube Samples"""
+        from scipy.stats import qmc
+        
+        sampler = qmc.LatinHypercube(d=n_dimensions)
+        samples = sampler.random(n=n_samples)
+        return samples
+    
+    def simulate_lhs_portfolio(self, time_horizon=252):
+        """Simulate portfolio using Latin Hypercube Sampling for more efficient sampling"""
+        # Generate LHS samples for return and volatility
+        lhs_samples = self.generate_lhs_samples(self.n_simulations, 2)
+        
+        # Transform samples to parameter space
+        sampled_returns = self.returns + (lhs_samples[:, 0] - 0.5) * self.returns * 0.5
+        sampled_volatility = self.volatility + (lhs_samples[:, 1] - 0.5) * self.volatility * 0.5
+        
+        dt = 1 / time_horizon
+        portfolio_values = np.zeros((self.n_simulations, time_horizon + 1))
+        portfolio_values[:, 0] = self.initial_value
+        
+        for t in range(time_horizon):
+            for i in range(self.n_simulations):
+                z = np.random.standard_normal()
+                portfolio_return = (sampled_returns[i] - 0.5 * sampled_volatility[i]**2) * dt + \
+                                   sampled_volatility[i] * np.sqrt(dt) * z
+                portfolio_values[i, t + 1] = portfolio_values[i, t] * (1 + portfolio_return)
         
         return portfolio_values
     
-    def run_simulation(self, years=20):
-        """Run crisis management simulation"""
-        portfolio_values = self.simulate_with_crisis(years)
+    def run_simulation(self, time_horizon=252):
+        """Run LHS simulation"""
+        portfolio_values = self.simulate_lhs_portfolio(time_horizon)
         final_values = portfolio_values[:, -1]
         
-        # Calculate survival rate (portfolio value > 50% of initial)
-        survival_threshold = self.initial_value * 0.5
-        survival_rate = np.mean(final_values >= survival_threshold)
+        return {
+            'final_values': final_values,
+            'mean': np.mean(final_values),
+            'std': np.std(final_values),
+            'percentile_5': np.percentile(final_values, 5),
+            'percentile_95': np.percentile(final_values, 95),
+            'all_paths': portfolio_values
+        }
+
+class MLPathGenerationMonteCarlo(MonteCarloSimulator):
+    """Monte Carlo simulation with ML-based path generation using neural networks"""
+    
+    def __init__(self, initial_value, historical_paths, n_simulations=10000, random_seed=42):
+        super().__init__(n_simulations, random_seed)
+        self.initial_value = initial_value
+        self.historical_paths = historical_paths
+        self.model = None
+        
+    def train_neural_network_paths(self):
+        """Train a simple neural network to learn path patterns from historical data"""
+        try:
+            from sklearn.neural_network import MLPRegressor
+            
+            # Prepare training data
+            X = self.historical_paths[:, :-1]  # All but last point
+            y = np.diff(self.historical_paths, axis=1)  # Differences
+            
+            # Flatten for training
+            X_flat = X.reshape(X.shape[0], -1)
+            y_flat = y.reshape(y.shape[0], -1)
+            
+            # Train neural network
+            self.model = MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=500, random_state=random_seed)
+            self.model.fit(X_flat, y_flat)
+            
+            return True
+        except ImportError:
+            print("scikit-learn not available for neural network training")
+            return False
+    
+    def generate_ml_paths(self, path_length):
+        """Generate new paths using the trained neural network"""
+        if self.model is None:
+            # Fall back to random walks if model not trained
+            paths = np.zeros((self.n_simulations, path_length))
+            paths[:, 0] = self.initial_value
+            
+            for t in range(1, path_length):
+                returns = np.random.normal(0.07, 0.14, self.n_simulations)
+                paths[:, t] = paths[:, t-1] * (1 + returns)
+            
+            return paths
+        
+        # Use ML model to generate paths
+        paths = np.zeros((self.n_simulations, path_length))
+        paths[:, 0] = self.initial_value
+        
+        for i in range(self.n_simulations):
+            current_path = np.zeros(path_length)
+            current_path[0] = self.initial_value
+            
+            for t in range(1, path_length):
+                # Predict next increment
+                input_data = current_path[:t].reshape(1, -1)
+                # Pad if input is too short
+                if input_data.shape[1] < self.model.n_features_in_:
+                    input_data = np.pad(input_data, ((0, 0), (0, self.model.n_features_in_ - input_data.shape[1])), 'constant')
+                
+                increment = self.model.predict(input_data)[0]
+                current_path[t] = current_path[t-1] + np.mean(increment)
+            
+            paths[i] = current_path
+        
+        return paths
+    
+    def run_simulation(self, path_length=252):
+        """Run ML-based path generation"""
+        paths = self.generate_ml_paths(path_length)
+        final_values = paths[:, -1]
         
         return {
-            'portfolio_values': portfolio_values,
             'final_values': final_values,
-            'mean_final': np.mean(final_values),
-            'median_final': np.median(final_values),
-            'survival_rate': survival_rate,
-            'survival_threshold': survival_threshold
+            'mean': np.mean(final_values),
+            'std': np.std(final_values),
+            'all_paths': paths,
+            'ml_trained': self.model is not None
         }
+
+class OutcomeClusteringMonteCarlo(MonteCarloSimulator):
+    """Monte Carlo simulation with clustering of simulation outcomes for risk segmentation"""
+    
+    def __init__(self, initial_value, returns, volatility, n_simulations=10000, random_seed=42):
+        super().__init__(n_simulations, random_seed)
+        self.initial_value = initial_value
+        self.returns = returns
+        self.volatility = volatility
+        
+    def simulate_and_cluster(self, time_horizon=252, n_clusters=3):
+        """Simulate paths and cluster outcomes based on risk characteristics"""
+        # Generate paths
+        dt = 1 / time_horizon
+        paths = np.zeros((self.n_simulations, time_horizon + 1))
+        paths[:, 0] = self.initial_value
+        
+        for t in range(time_horizon):
+            z = np.random.standard_normal(self.n_simulations)
+            portfolio_return = (self.returns - 0.5 * self.volatility**2) * dt + \
+                               self.volatility * np.sqrt(dt) * z
+            paths[:, t + 1] = paths[:, t] * (1 + portfolio_return)
+        
+        # Extract features for clustering
+        final_values = paths[:, -1]
+        max_drawdown = np.min(paths / paths[:, 0][:, None], axis=1) - 1
+        volatility_paths = np.std(np.diff(paths, axis=1), axis=1)
+        sharpe_ratio = (np.mean(np.diff(paths, axis=1), axis=1) / volatility_paths)
+        
+        features = np.column_stack([final_values, max_drawdown, volatility_paths, sharpe_ratio])
+        
+        # Normalize features
+        features_normalized = (features - features.mean(axis=0)) / features.std(axis=0)
+        
+        # Cluster outcomes
+        try:
+            from sklearn.cluster import KMeans
+            kmeans = KMeans(n_clusters=n_clusters, random_state=random_seed, n_init=10)
+            cluster_labels = kmeans.fit_predict(features_normalized)
+            
+            # Calculate cluster statistics
+            cluster_stats = {}
+            for cluster_id in range(n_clusters):
+                cluster_mask = cluster_labels == cluster_id
+                cluster_stats[cluster_id] = {
+                    'count': np.sum(cluster_mask),
+                    'mean_final': np.mean(final_values[cluster_mask]),
+                    'mean_drawdown': np.mean(max_drawdown[cluster_mask]),
+                    'mean_sharpe': np.mean(sharpe_ratio[cluster_mask])
+                }
+            
+            return {
+                'paths': paths,
+                'cluster_labels': cluster_labels,
+                'cluster_stats': cluster_stats,
+                'features': features,
+                'kmeans': kmeans
+            }
+        except ImportError:
+            print("scikit-learn not available for clustering")
+            return {
+                'paths': paths,
+                'cluster_labels': None,
+                'cluster_stats': None,
+                'features': features
+            }
+    
+    def run_simulation(self, time_horizon=252, n_clusters=3):
+        """Run simulation with clustering"""
+        return self.simulate_and_cluster(time_horizon, n_clusters)
+
+# Example usage for advanced methods
+if __name__ == "__main__":
+    print("Advanced Statistical Methods and ML Integration Examples")
+    print("=" * 70)
+    
+    # Example 1: Bayesian Monte Carlo for Endowment
+    print("\n1. Bayesian Monte Carlo for Endowment Sustainability")
+    prior_returns = {
+        'equity': {'mean': 0.08, 'std': 0.02},
+        'bond': {'mean': 0.04, 'std': 0.01}
+    }
+    prior_volatility = {
+        'equity': {'std': 0.16},
+        'bond': {'std': 0.08}
+    }
+    
+    bayesian_mc = BayesianEndowmentMonteCarlo(
+        initial_value=10000000,
+        annual_payout=315000,
+        prior_returns=prior_returns,
+        prior_volatility=prior_volatility,
+        n_simulations=5000
+    )
+    bayesian_results = bayesian_mc.run_simulation(years=20)
+    print(f"  Posterior Mean: ${bayesian_results['posterior_mean']:,.2f}")
+    print(f"  95% Credible Interval: ${bayesian_results['credible_interval_95'][0]:,.2f} - ${bayesian_results['credible_interval_95'][1]:,.2f}")
+    
+    # Example 2: Latin Hypercube Sampling
+    print("\n2. Latin Hypercube Sampling for Efficient Simulation")
+    lhs_mc = LatinHypercubeSamplingMonteCarlo(
+        initial_value=1000000,
+        returns=0.10,
+        volatility=0.20,
+        n_simulations=5000
+    )
+    lhs_results = lhs_mc.run_simulation(time_horizon=252)
+    print(f"  Mean Final Value: ${lhs_results['mean']:,.2f}")
+    print(f"  5th-95th Percentile Range: ${lhs_results['percentile_5']:,.2f} - ${lhs_results['percentile_95']:,.2f}")
+    
+    # Example 3: Outcome Clustering for Risk Segmentation
+    print("\n3. Outcome Clustering for Risk Segmentation")
+    cluster_mc = OutcomeClusteringMonteCarlo(
+        initial_value=1000000,
+        returns=0.10,
+        volatility=0.20,
+        n_simulations=5000
+    )
+    cluster_results = cluster_mc.run_simulation(time_horizon=252, n_clusters=3)
+    
+    if cluster_results['cluster_stats']:
+        print("  Cluster Statistics:")
+        for cluster_id, stats in cluster_results['cluster_stats'].items():
+            print(f"    Cluster {cluster_id}: {stats['count']} paths, Mean Final: ${stats['mean_final']:,.2f}")
+    
+    print("\nAll advanced simulations completed successfully!")
 
 # Visualization functions
 
