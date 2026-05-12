@@ -8,6 +8,8 @@ A comprehensive collection of Monte Carlo simulation implementations for finance
 
 ## Overview
 
+**What is this about?** Monte Carlo simulations are a way to predict the future by running thousands of "what if" scenarios. Think of it like playing a game thousands of times to understand all possible outcomes. Instead of guessing what might happen, we use computers to simulate many different futures and see what patterns emerge.
+
 Monte Carlo simulations are computational algorithms that rely on repeated random sampling to obtain numerical results. This project includes implementations for:
 
 - **Portfolio Simulation** - Simulating investment returns using Geometric Brownian Motion
@@ -17,6 +19,8 @@ Monte Carlo simulations are computational algorithms that rely on repeated rando
 - **Revenue Forecasting** - Multi-period revenue projection with volatility
 
 ## Non-Profit Endowment Simulations
+
+**Why endowments need this:** Non-profit organizations rely on their endowments to fund their missions forever. But markets are unpredictable—if the market crashes right after you make a big spending commitment, you might run out of money. These simulations help organizations make smarter decisions by testing thousands of different scenarios to see how much they can safely spend without going bankrupt.
 
 Specialized Monte Carlo tools for non-profit endowment management:
 
@@ -32,6 +36,8 @@ Specialized Monte Carlo tools for non-profit endowment management:
 - **Median Outcome** - The most likely outcome, along with worst-case and best-case scenarios
 
 ## Multi-Language Implementations
+
+**Why multiple languages?** Different organizations use different tools. A bank might use SQL databases, a research lab might use Julia for speed, a startup might use Ruby for web applications. By showing the same simulations in multiple languages, this project demonstrates that these techniques can be implemented anywhere—not just in one specific programming language. This also shows technical versatility to potential employers.
 
 This project demonstrates Monte Carlo simulations across multiple programming languages to showcase versatility and technical breadth:
 
@@ -205,6 +211,8 @@ print(f"Mean Year 5 Revenue: ${results['mean_final']:,.2f}")
 
 ## Advanced Statistical Methods & ML Integration
 
+**What makes these "advanced"?** Traditional simulations assume we know exactly what will happen in the future (like "stocks always return 8%"). But in reality, we're uncertain about everything. Advanced methods handle this uncertainty in smarter ways: Bayesian methods let us update our beliefs as we learn more, Latin Hypercube Sampling is like a more efficient way to explore possibilities, machine learning learns patterns from historical data, and clustering groups similar outcomes together to understand risks better. These are the same techniques used by hedge funds and quantitative trading firms.
+
 The project includes advanced simulation techniques for sophisticated endowment analysis:
 
 ### Bayesian Monte Carlo
@@ -296,6 +304,8 @@ if results['cluster_stats']:
 ```
 
 ## Visualizations
+
+**Why visualizations matter:** Numbers alone can be overwhelming. A good chart can instantly show patterns that would take hours to spot in a spreadsheet. These visualizations turn thousands of simulation results into clear, actionable insights—showing you at a glance what the risks are, what the likely outcomes are, and where the dangerous scenarios might be. This is how analysts communicate complex findings to decision-makers who may not be technical.
 
 The project includes comprehensive data visualization functions for analyzing and presenting simulation results:
 
