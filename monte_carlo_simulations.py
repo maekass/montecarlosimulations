@@ -474,6 +474,27 @@ def plot_simulation_histogram(data, title="Monte Carlo Simulation Results", xlab
     plt.tight_layout()
     return plt
 
+def plot_histogram_with_kde(data, title="Histogram with KDE", xlabel="Value"):
+    """Plot histogram with Kernel Density Estimation"""
+    from scipy.stats import gaussian_kde
+    
+    plt.figure(figsize=(12, 6))
+    plt.hist(data, bins=50, edgecolor='black', alpha=0.5, color='steelblue', density=True)
+    
+    # Add KDE
+    kde = gaussian_kde(data)
+    x_range = np.linspace(data.min(), data.max(), 200)
+    plt.plot(x_range, kde(x_range), linewidth=3, color='red', label='KDE')
+    
+    plt.axvline(np.mean(data), color='blue', linestyle='--', linewidth=2, label=f'Mean: {np.mean(data):,.2f}')
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel('Density', fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return plt
+
 def plot_simulation_paths(paths, title="Simulation Paths", xlabel="Time", ylabel="Value"):
     """Plot simulation paths"""
     plt.figure(figsize=(14, 8))
@@ -510,6 +531,184 @@ def plot_confidence_bands(paths, title="Confidence Bands", xlabel="Time", ylabel
                      mean_path - std_path,
                      mean_path + std_path,
                      alpha=0.5, color='steelblue', label='68% Confidence Interval')
+    
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return plt
+
+def plot_box_violin_comparison(data_dict, title="Box and Violin Plot Comparison"):
+    """Plot both box and violin plots for comparison"""
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    
+    # Box plot
+    axes[0].boxplot(data_dict.values(), labels=data_dict.keys(), patch_artist=True)
+    axes[0].set_title('Box Plot', fontweight='bold')
+    axes[0].grid(True, alpha=0.3, axis='y')
+    
+    # Violin plot
+    parts = axes[1].violinplot(data_dict.values(), showmeans=True, showmedians=True)
+    axes[1].set_xticks(np.arange(1, len(data_dict) + 1))
+    axes[1].set_xticklabels(data_dict.keys())
+    axes[1].set_title('Violin Plot', fontweight='bold')
+    axes[1].grid(True, alpha=0.3, axis='y')
+    
+    plt.suptitle(title, fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    return plt
+
+def plot_multi_series_comparison(data_dict, title="Multi-Series Comparison", xlabel="Time", ylabel="Value"):
+    """Plot multiple series with confidence bands"""
+    plt.figure(figsize=(14, 8))
+    
+    colors = ['#2b6cb0', '#e53e3e', '#38a169', '#dd6b20', '#805ad5']
+    
+    for i, (label, data) in enumerate(data_dict.items()):
+        if isinstance(data, np.ndarray) and data.ndim == 2:
+            # 2D array (multiple paths)
+            mean_path = np.mean(data, axis=0)
+            std_path = np.std(data, axis=0)
+            x = np.arange(len(mean_path))
+            plt.plot(x, mean_path, linewidth=2.5, markersize=6, label=label, color=colors[i % len(colors)])
+            plt.fill_between(x, mean_path - std_path, mean_path + std_path, alpha=0.2, color=colors[i % len(colors)])
+        else:
+            # 1D array (single series)
+            plt.plot(data, linewidth=2.5, markersize=6, label=label, color=colors[i % len(colors)])
+    
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return plt
+
+def plot_survival_probability(survival_data, title="Survival Probability"):
+    """Plot survival probability over time"""
+    plt.figure(figsize=(12, 6))
+    
+    x = np.arange(len(survival_data))
+    plt.plot(x, survival_data, linewidth=3, markersize=8, marker='o', color='#2b6cb0')
+    plt.fill_between(x, survival_data, alpha=0.3, color='#4299e1')
+    
+    plt.xlabel('Time Period', fontsize=12)
+    plt.ylabel('Survival Probability', fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.ylim(0, 1)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return plt
+
+def plot_risk_return_scatter(mean_returns, volatilities, labels, title="Risk-Return Tradeoff"):
+    """Plot risk-return scatter for different strategies"""
+    plt.figure(figsize=(12, 8))
+    
+    colors = ['#e53e3e', '#dd6b20', '#d69e2e', '#38a169', '#3182ce', '#805ad5']
+    
+    for i, (mean_return, volatility, label) in enumerate(zip(mean_returns, volatilities, labels)):
+        plt.scatter(volatility, mean_return, s=500, alpha=0.7, color=colors[i % len(colors)], 
+                   edgecolors='black', linewidth=2, label=label)
+        plt.annotate(label, (volatility, mean_return), xytext=(5, 5), textcoords='offset points',
+                   fontsize=11, fontweight='bold')
+    
+    plt.xlabel('Volatility (Risk)', fontsize=12)
+    plt.ylabel('Mean Return', fontsize=12)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return plt
+
+def plot_correlation_heatmap(data, title="Correlation Heatmap"):
+    """Plot correlation heatmap for multivariate data"""
+    if isinstance(data, dict):
+        df = pd.DataFrame(data)
+    else:
+        df = data
+    
+    corr_matrix = df.corr()
+    
+    plt.figure(figsize=(10, 8))
+    plt.imshow(corr_matrix, cmap='RdBu_r', vmin=-1, vmax=1, aspect='auto')
+    plt.colorbar(label='Correlation Coefficient')
+    
+    # Add value annotations
+    for i in range(len(corr_matrix.columns)):
+        for j in range(len(corr_matrix.columns)):
+            plt.text(j, i, f'{corr_matrix.iloc[i, j]:.2f}',
+                    ha="center", va="center", color="black", fontweight='bold')
+    
+    plt.xticks(np.arange(len(corr_matrix.columns)), corr_matrix.columns, rotation=45, ha='right')
+    plt.yticks(np.arange(len(corr_matrix.columns)), corr_matrix.columns)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    return plt
+
+def plot_dashboard_2x2(plot1_data, plot2_data, plot3_data, plot4_data, 
+                       plot1_title="Plot 1", plot2_title="Plot 2", 
+                       plot3_title="Plot 3", plot4_title="Plot 4",
+                       main_title="Monte Carlo Simulation Dashboard"):
+    """Create a 2x2 dashboard with 4 plots"""
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    axes = axes.flatten()
+    
+    # Plot 1: Histogram
+    axes[0].hist(plot1_data, bins=50, edgecolor='black', alpha=0.7, color='steelblue')
+    axes[0].axvline(np.mean(plot1_data), color='red', linestyle='--', linewidth=2)
+    axes[0].set_title(plot1_title, fontweight='bold')
+    axes[0].grid(True, alpha=0.3, axis='y')
+    
+    # Plot 2: Line chart
+    if isinstance(plot2_data, dict):
+        for i, (label, data) in enumerate(plot2_data.items()):
+            axes[1].plot(data, linewidth=2, label=label)
+        axes[1].legend()
+    else:
+        axes[1].plot(plot2_data, linewidth=2)
+    axes[1].set_title(plot2_title, fontweight='bold')
+    axes[1].grid(True, alpha=0.3)
+    
+    # Plot 3: Box plot
+    if isinstance(plot3_data, dict):
+        axes[2].boxplot(plot3_data.values(), labels=plot3_data.keys(), patch_artist=True)
+    else:
+        axes[2].boxplot(plot3_data, patch_artist=True)
+    axes[2].set_title(plot3_title, fontweight='bold')
+    axes[2].grid(True, alpha=0.3, axis='y')
+    
+    # Plot 4: Scatter
+    if len(plot4_data) == 2:
+        axes[3].scatter(plot4_data[0], plot4_data[1], alpha=0.6, color='steelblue', edgecolors='black')
+        axes[3].set_xlabel('X')
+        axes[3].set_ylabel('Y')
+    axes[3].set_title(plot4_title, fontweight='bold')
+    axes[3].grid(True, alpha=0.3)
+    
+    plt.suptitle(main_title, fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    return plt
+
+def plot_percentile_bands(paths, title="Percentile Bands", xlabel="Time", ylabel="Value"):
+    """Plot percentile bands (5th, 25th, 50th, 75th, 95th)"""
+    plt.figure(figsize=(14, 8))
+    
+    # Calculate percentiles
+    p5 = np.percentile(paths, 5, axis=0)
+    p25 = np.percentile(paths, 25, axis=0)
+    p50 = np.percentile(paths, 50, axis=0)
+    p75 = np.percentile(paths, 75, axis=0)
+    p95 = np.percentile(paths, 95, axis=0)
+    
+    x = np.arange(len(p50))
+    
+    # Fill percentile bands
+    plt.fill_between(x, p5, p95, alpha=0.2, color='steelblue', label='5th-95th percentile')
+    plt.fill_between(x, p25, p75, alpha=0.4, color='steelblue', label='25th-75th percentile')
+    
+    # Plot median
+    plt.plot(x, p50, linewidth=3, color='red', label='Median (50th percentile)')
     
     plt.xlabel(xlabel, fontsize=12)
     plt.ylabel(ylabel, fontsize=12)

@@ -121,7 +121,9 @@ print(f"Mean Year 5 Revenue: ${results['mean_final']:,.2f}")
 
 ## Visualizations
 
-The project includes built-in visualization functions:
+The project includes comprehensive data visualization functions for analyzing and presenting simulation results:
+
+### Basic Visualizations
 
 ```python
 from monte_carlo_simulations import plot_simulation_histogram, plot_simulation_paths, plot_confidence_bands
@@ -136,6 +138,57 @@ plt.show()
 
 # Plot confidence bands
 plot_confidence_bands(results['all_paths'], title="Confidence Bands")
+plt.show()
+```
+
+### Advanced Visualizations
+
+```python
+from monte_carlo_simulations import (
+    plot_histogram_with_kde,
+    plot_box_violin_comparison,
+    plot_multi_series_comparison,
+    plot_survival_probability,
+    plot_risk_return_scatter,
+    plot_correlation_heatmap,
+    plot_dashboard_2x2,
+    plot_percentile_bands
+)
+
+# Histogram with Kernel Density Estimation
+plot_histogram_with_kde(results['final_values'], title="Distribution with KDE")
+plt.show()
+
+# Box and Violin plot comparison
+data_dict = {'Strategy A': results['final_values'][:5000], 'Strategy B': results['final_values'][5000:]}
+plot_box_violin_comparison(data_dict, title="Strategy Comparison")
+plt.show()
+
+# Multi-series comparison with confidence bands
+plot_multi_series_comparison(allocation_results, title="Asset Allocation Comparison")
+plt.show()
+
+# Survival probability over time
+plot_survival_probability(survival_data, title="Endowment Survival Probability")
+plt.show()
+
+# Risk-return scatter plot
+plot_risk_return_scatter(mean_returns, volatilities, strategy_names, title="Risk-Return Tradeoff")
+plt.show()
+
+# Correlation heatmap
+plot_correlation_heatmap(correlation_data, title="Correlation Matrix")
+plt.show()
+
+# 2x2 dashboard
+plot_dashboard_2x2(data1, data2, data3, data4, 
+                   plot1_title="Histogram", plot2_title="Line Chart",
+                   plot3_title="Box Plot", plot4_title="Scatter",
+                   main_title="Monte Carlo Dashboard")
+plt.show()
+
+# Percentile bands (5th, 25th, 50th, 75th, 95th)
+plot_percentile_bands(results['all_paths'], title="Percentile Bands")
 plt.show()
 ```
 
