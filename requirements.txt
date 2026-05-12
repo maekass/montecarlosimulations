@@ -3,3 +3,17 @@ pandas>=2.0.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 scipy>=1.10.0
+
+# Machine Learning (optional - for advanced features)
+scikit-learn>=1.0.0
+
+# Bayesian Analysis (optional - for comprehensive ARC analysis)
+pymc>=5.0.0
+arviz>=0.12.0
+
+# Data sources (optional - for real-time integration)
+yfinance>=0.1.70
+requests>=2.25.0
+
+# Development and testing
+pytest>=6.0.0

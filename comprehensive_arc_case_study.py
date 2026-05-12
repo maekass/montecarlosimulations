@@ -10,12 +10,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from scipy.optimize import minimize
-import pymc as pm
-import arviz as az
-from montecarlosimulations import EndowmentSustainabilityMonteCarlo
+from monte_carlo_simulations import EndowmentSustainabilityMonteCarlo
 from advanced_monte_carlo import AdvancedRiskMetrics
 import warnings
 warnings.filterwarnings('ignore')
+
+# Try to import Bayesian libraries, provide fallback if not available
+try:
+    import pymc as pm
+    import arviz as az
+    BAYESIAN_AVAILABLE = True
+except ImportError:
+    print("Warning: PyMC/ArviZ not available. Bayesian analysis will be disabled.")
+    print("Install with: pip install pymc arviz")
+    BAYESIAN_AVAILABLE = False
 
 class BayesianARCCaseStudy:
     """
@@ -92,6 +100,37 @@ class BayesianARCCaseStudy:
         Returns:
         Dictionary with posterior distributions and parameter estimates
         """
+        if not BAYESIAN_AVAILABLE:
+            print("=== BAYESIAN PARAMETER ESTIMATION ===")
+            print("PyMC/ArviZ not available. Using fallback analysis.")
+            print()
+            
+            # Fallback analysis using traditional statistics
+            data = self.get_historical_data()
+            
+            fallback_results = {
+                'method': 'fallback_statistics',
+                'equity_return_mean': data['equity_return'].mean(),
+                'equity_return_std': data['equity_return'].std(),
+                'bond_return_mean': data['bond_return'].mean(),
+                'bond_return_std': data['bond_return'].std(),
+                'hurricane_probability': data['hurricane_disaster'].mean(),
+                'earthquake_probability': data['earthquake_disaster'].mean(),
+                'pandemic_probability': data['pandemic_disaster'].mean()
+            }
+            
+            print("FALLBACK PARAMETER ESTIMATES:")
+            print(f"Equity Return Mean: {fallback_results['equity_return_mean']:.4f}")
+            print(f"Equity Return Std: {fallback_results['equity_return_std']:.4f}")
+            print(f"Bond Return Mean: {fallback_results['bond_return_mean']:.4f}")
+            print(f"Bond Return Std: {fallback_results['bond_return_std']:.4f}")
+            print(f"Hurricane Probability: {fallback_results['hurricane_probability']:.4f}")
+            print(f"Earthquake Probability: {fallback_results['earthquake_probability']:.4f}")
+            print(f"Pandemic Probability: {fallback_results['pandemic_probability']:.4f}")
+            print()
+            
+            return fallback_results
+        
         print("=== BAYESIAN PARAMETER ESTIMATION ===")
         print("Estimating posterior distributions for key parameters")
         print()
