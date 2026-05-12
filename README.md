@@ -487,36 +487,19 @@ do case_studies_stata.do
 american_red_cross_case_study
 ```
 
-## Case Studies & Examples
-
-### 🏥 American Red Cross ($3.4B) - Primary Example
-- **Challenge**: Unpredictable disaster cycles and regulatory requirements
-- **Current Spending**: 4.5% annually ($153M)
-- **Key Finding**: 78.4% survival, disaster modeling essential, recommend 4.0% spending
-
-### Additional Case Studies Available
-- **University Endowment ($850M)**: Balance academic excellence with sustainability
-- **Healthcare Foundation ($125M)**: High healthcare inflation vs. investment returns
-- **Arts Foundation ($45M)**: Economic cycle sensitivity and funding volatility
-- **Environmental Foundation ($200M)**: Mission urgency vs. long-term sustainability
-
-### Running Additional Case Studies
+### Comprehensive Bayesian Analysis
 ```python
-# Run individual case studies
-from case_studies import run_university_case_study, run_healthcare_case_study
-from case_studies import run_arts_case_study, run_environmental_case_study
-from case_studies import run_american_red_cross_case_study
+# Advanced Bayesian analysis with MCMC, optimization, and Stata integration
+from comprehensive_arc_case_study import run_comprehensive_arc_analysis
 
-# Run all available case studies
-from case_studies import run_all_case_studies
-all_results = run_all_case_studies()
-```
+# Run complete Bayesian ARC analysis
+results = run_comprehensive_arc_analysis()
 
-```stata
-# Run specific case studies in Stata
-do case_studies_stata.do
-university_endowment_case_study
-american_red_cross_case_study
+# Access Bayesian results
+bayesian_params = results['bayesian_parameters']
+optimization = results['bayesian_optimization']
+uncertainty = results['uncertainty_analysis']
+stata_code = results['stata_code']
 ```
 
 ## Tableau Integration
