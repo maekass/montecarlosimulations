@@ -402,6 +402,120 @@ GROUP BY year
 ORDER BY year;
 ```
 
+### 📊 Tableau Dashboard Integration
+
+**Interactive Visualization Dashboard:**
+```mermaid
+flowchart TD
+    A[Monte Carlo Data] --> B[Tableau Prep]
+    B --> C[Endowment Sustainability Dashboard]
+    B --> D[Strategy Comparison Dashboard]
+    B --> E[Risk Analysis Dashboard]
+    B --> F[Executive Summary Dashboard]
+    
+    C --> G[Portfolio Value Over Time]
+    C --> H[Final Value Distribution]
+    C --> I[Survival Probability Heatmap]
+    
+    D --> J[Strategy Survival Rates]
+    D --> K[Payout Impact Analysis]
+    D --> L[Performance Matrix]
+    
+    E --> M[Risk-Return Scatter Plot]
+    E --> N[Crisis Impact Visualization]
+    E --> O[Volatility Analysis]
+    
+    F --> P[Key Metrics KPIs]
+    F --> Q[Performance Comparison]
+    F --> R[Trend Analysis]
+    
+    style C fill:#e3f2fd
+    style D fill:#f3e5f5
+    style E fill:#e8f5e8
+    style F fill:#fff3e0
+```
+
+**Tableau Dashboard Examples:**
+
+**Dashboard 1: Endowment Sustainability**
+```
+┌─────────────────────────────────────────────────────────┐
+│                 ENDOVEMENT SUSTAINABILITY               │
+├─────────────────────┬───────────────────────────────────┤
+│ Portfolio Value     │ Final Value Distribution          │
+│ Over Time           │                                     │
+│                     │    ████████                         │
+│ $15M ────┐          │   ████████████                      │
+│          ╲          │  ████████████████                   │
+│ $10M ────╲╱         │ ████████████████████                │
+│          ╲╱         │   ████████████████                   │
+│ $5M  ────╲╱         │     ████████████                     │
+│          ╲╱         │         ████████                     │
+│          ╲╱         │                                     │
+│ 0    10   20 Years  │ P5   Median   P95                   │
+│                     │ $4M   $9M    $15M                   │
+├─────────────────────┼───────────────────────────────────┤
+│ Survival            │ Risk Heatmap                       │
+│ Probability         │                                     │
+│ 95% ──────────────  │ Year 5:  🟢🟢🟢🟢🟢                │
+│ 85% ────────        │ Year 10: 🟢🟢🟢🟡🟡                 │
+│ 73% ──────          │ Year 15: 🟢🟡🟡🔴🔴                 │
+│ 61% ────            │ Year 20: 🟡🟡🔴🔴🔴                 │
+│                     │                                     │
+└─────────────────────┴───────────────────────────────────┘
+```
+
+**Dashboard 2: Strategy Comparison**
+```
+┌─────────────────────────────────────────────────────────┐
+│                STRATEGY COMPARISON                      │
+├─────────────────────┬───────────────────────────────────┤
+│ Strategy Survival   │ Payout Impact Analysis             │
+│ Rates               │                                     │
+│                     │ 10% ────┐                          │
+│ Fixed $315K 78% ────│        ╲                          │
+│ 3% Percent   92% ───│ 7%  ────╲╱                         │
+│ 5% Percent   85% ───│        ╲╱                         │
+│ 7% Percent   68% ───│ 5%  ────╲╱                         │
+│ 10% Percent  62% ───│        ╲╱                         │
+│ 15% Percent  41% ───│ 3%  ────╲╱                         │
+│                     │        ╲╱                         │
+├─────────────────────┼───────────────────────────────────┤
+│ Performance Matrix  │ Risk vs Return                    │
+│                     │                                     │
+│ Strategy    Return  │ ● Conservative                    │
+│ Conservative $12M   │   Low Risk, Low Return             │
+│ Balanced    $13M    │ ● Balanced                        │
+│ Aggressive  $11M    │   Medium Risk, Medium Return      │
+│ Very Aggr.  $9M     │ ● Aggressive                      │
+│                     │   High Risk, High Return          │
+└─────────────────────┴───────────────────────────────────┘
+```
+
+**Tableau Data Preparation:**
+```python
+# Generate Tableau-ready data
+from tableau_integration import TableauDataPrep
+
+prep = TableauDataPrep()
+prep.create_tableau_data_extract()
+
+# Creates CSV files:
+# - tableau_endowment_simulations.csv
+# - tableau_strategy_comparison.csv
+# - tableau_allocation_comparison.csv
+# - tableau_crisis_scenarios.csv
+# - tableau_summary_statistics.csv
+```
+
+**Key Tableau Features:**
+- � **Interactive Filters**: Filter by simulation ID, year, strategy
+- 🎯 **Drill-Down Capabilities**: Click to explore individual scenarios
+- 📈 **Real-Time Calculations**: Survival probability, risk metrics
+- 🎨 **Color-Coded Insights**: Green (safe), Yellow (caution), Red (risk)
+- 📋 **Export Options**: PDF, Excel, image formats
+- 🔗 **Data Blending**: Combine multiple simulation types
+
 ### �📋 Sample Parameters
 ```
 Conservative Endowment:

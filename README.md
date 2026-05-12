@@ -303,6 +303,69 @@ if results['cluster_stats']:
         print(f"    Mean Sharpe: {stats['mean_sharpe']:.2f}")
 ```
 
+## Tableau Integration
+
+**Why Tableau for Monte Carlo?** Tableau transforms thousands of simulation results into interactive dashboards that non-technical stakeholders can explore. Instead of looking at spreadsheets, decision-makers can filter scenarios, drill down into specific outcomes, and see visual patterns emerge in real-time. This is how investment analysts communicate complex risk analysis to boards and executives.
+
+### Tableau Dashboard Examples
+
+**Dashboard 1: Endowment Sustainability**
+- Portfolio value trajectories over time
+- Final value distribution histograms
+- Survival probability heatmaps
+- Risk threshold analysis
+
+**Dashboard 2: Strategy Comparison**
+- Side-by-side survival rate comparisons
+- Payout impact analysis
+- Performance matrix visualization
+- Risk-return scatter plots
+
+**Dashboard 3: Risk Analysis**
+- Crisis scenario impact visualization
+- Volatility analysis across allocations
+- Stress testing results
+- Monte Carlo path clustering
+
+### Data Preparation for Tableau
+
+```python
+from tableau_integration import TableauDataPrep
+
+# Generate Tableau-ready CSV files
+prep = TableauDataPrep()
+prep.create_tableau_data_extract()
+
+# Output files:
+# - tableau_endowment_simulations.csv
+# - tableau_strategy_comparison.csv
+# - tableau_allocation_comparison.csv
+# - tableau_crisis_scenarios.csv
+# - tableau_summary_statistics.csv
+```
+
+### Tableau Calculated Fields
+
+```sql
+-- Survival Rate Calculation
+IF [Portfolio_Value] >= [Initial_Value] * 0.8 THEN 1 ELSE 0 END
+
+-- Payout Ratio
+[Annual_Payout] / [Portfolio_Value]
+
+-- Risk Level Classification
+IF [Equity_Allocation] <= 0.4 THEN "Low"
+ELSEIF [Equity_Allocation] <= 0.7 THEN "Medium"
+ELSE "High" END
+```
+
+### Key Tableau Features
+- Interactive filters for simulation parameters
+- Drill-down capabilities for individual scenarios
+- Real-time survival probability calculations
+- Color-coded risk indicators
+- Export options for presentations
+
 ## Visualizations
 
 **Why visualizations matter:** Numbers alone can be overwhelming. A good chart can instantly show patterns that would take hours to spot in a spreadsheet. These visualizations turn thousands of simulation results into clear, actionable insights—showing you at a glance what the risks are, what the likely outcomes are, and where the dangerous scenarios might be. This is how analysts communicate complex findings to decision-makers who may not be technical.
