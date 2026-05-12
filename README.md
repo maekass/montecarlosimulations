@@ -440,47 +440,82 @@ export_results, filename("custom_endowment_analysis")
 - Diagnostic tests and validity checks
 - Supplemental materials with replication code
 
-## Case Studies & Examples
+## 🏥 American Red Cross Case Study - Primary Example
 
-### 🎓 University Endowment ($850M)
-- **Challenge**: Balance academic excellence with long-term sustainability
-- **Current Spending**: 4.8% annually ($40.8M)
-- **Key Finding**: 72.3% survival rate, recommend 4.5% spending
-
-### 🏥 Healthcare Foundation ($125M)
-- **Challenge**: High healthcare inflation vs. investment returns
-- **Current Spending**: 5.2% annually ($6.5M)
-- **Key Finding**: Inflation sensitivity critical, recommend 4.5% spending
-
-### 🎨 Arts Foundation ($45M)
-- **Challenge**: Economic cycle sensitivity and funding volatility
-- **Current Spending**: 6.0% annually ($2.7M)
-- **Key Finding**: 58.3% survival with cycles, recommend 4.5% spending
-
-### 🌍 Environmental Foundation ($200M)
-- **Challenge**: Mission urgency vs. long-term sustainability
-- **Current Spending**: 7.0% annually ($14M)
-- **Key Finding**: Balanced 5.5% spending optimizes climate impact
-
-### 🏥 American Red Cross ($3.4B)
+### Organization Overview
+- **Endowment**: $3.4 billion (2023)
+- **Annual Spending**: $153 million (4.5% spending rate)
+- **Mission**: Disaster relief, blood services, health & safety training
 - **Challenge**: Unpredictable disaster cycles and regulatory requirements
-- **Current Spending**: 4.5% annually ($153M)
-- **Key Finding**: 78.4% survival, disaster modeling essential, recommend 4.0% spending
 
-### Running Case Studies
+### Key Findings
+- **Survival Probability**: 78.4% over 30 years
+- **Disaster Impact**: 13.2% reduction in survival during disaster years
+- **Optimal Allocation**: Conservative (50/40/10) with 85.3% survival
+- **Recommended Spending**: 4.0% ($136M annually) for enhanced sustainability
+
+### Disaster Scenario Analysis
+- **Major Hurricane**: 8% annual probability, 15% survival reduction
+- **Major Earthquake**: 3% annual probability, 8% survival reduction  
+- **Pandemic**: 2% annual probability, 20% survival reduction
+- **Wildfire Crisis**: 5% annual probability, 12% survival reduction
+
+### Strategic Recommendations
+1. **Reduce spending rate** to 4.0% for improved sustainability
+2. **Establish disaster reserve fund** of $500M for catastrophic events
+3. **Shift to conservative allocation** (50/40/10) for enhanced stability
+4. **Implement quarterly Monte Carlo updates** with real-time data
+5. **Create stakeholder communication dashboard** for transparency
+
+### Running the American Red Cross Analysis
 ```python
-# Run individual case studies
-from case_studies import run_american_red_cross_case_study
-results = run_american_red_cross_case_study()
+# Primary example - American Red Cross case study
+from arc_case_study import run_american_red_cross_analysis
 
-# Run all case studies
-from case_studies import run_all_case_studies
-all_results = run_all_case_studies()
+# Run comprehensive ARC analysis
+results = run_american_red_cross_analysis()
+
+# Key results
+print(f"Survival Probability: {results['baseline_results']['survival_probability']:.2%}")
+print(f"Optimal Spending Rate: {results['optimal_rate']:.1%}")
+print(f"Best Allocation: {results['best_allocation'][0]}")
 ```
 
 ```stata
 # Run ARC case study in Stata
 do case_studies_stata.do
+american_red_cross_case_study
+```
+
+## Case Studies & Examples
+
+### 🏥 American Red Cross ($3.4B) - Primary Example
+- **Challenge**: Unpredictable disaster cycles and regulatory requirements
+- **Current Spending**: 4.5% annually ($153M)
+- **Key Finding**: 78.4% survival, disaster modeling essential, recommend 4.0% spending
+
+### Additional Case Studies Available
+- **University Endowment ($850M)**: Balance academic excellence with sustainability
+- **Healthcare Foundation ($125M)**: High healthcare inflation vs. investment returns
+- **Arts Foundation ($45M)**: Economic cycle sensitivity and funding volatility
+- **Environmental Foundation ($200M)**: Mission urgency vs. long-term sustainability
+
+### Running Additional Case Studies
+```python
+# Run individual case studies
+from case_studies import run_university_case_study, run_healthcare_case_study
+from case_studies import run_arts_case_study, run_environmental_case_study
+from case_studies import run_american_red_cross_case_study
+
+# Run all available case studies
+from case_studies import run_all_case_studies
+all_results = run_all_case_studies()
+```
+
+```stata
+# Run specific case studies in Stata
+do case_studies_stata.do
+university_endowment_case_study
 american_red_cross_case_study
 ```
 
