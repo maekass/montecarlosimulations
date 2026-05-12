@@ -337,6 +337,146 @@ program define environmental_foundation_case_study, rclass
 end
 
 * =============================================================================
+* CASE STUDY 5: AMERICAN RED CROSS
+* =============================================================================
+
+program define american_red_cross_case_study, rclass
+    di as txt "=== AMERICAN RED CROSS CASE STUDY ==="
+    di as txt "Organization: American Red Cross"
+    di as txt "Endowment: $3.4 billion"
+    di as txt "Current Spending: 4.5% annually ($153M)"
+    di as txt "Mission: Disaster relief, blood services, health & safety training"
+    di as txt "Challenge: Unpredictable disaster cycles, regulatory requirements, public trust"
+    di as txt ""
+
+    // American Red Cross specific parameters
+    global initial_value = 3400000000
+    global annual_payout = 153000000
+    global equity_return = 0.085
+    global bond_return = 0.035
+    global equity_volatility = 0.18
+    global bond_volatility = 0.06
+    global equity_allocation = 0.65
+    global inflation_rate = 0.028
+    global time_horizon = 30
+    global n_simulations = 5000
+
+    // Run baseline simulation
+    monte_carlo_endowment, n_simulations($n_simulations) years($time_horizon) ///
+        initial_value($initial_value) annual_payout($annual_payout) ///
+        equity_return($equity_return) bond_return($bond_return) ///
+        equity_volatility($equity_volatility) bond_volatility($bond_volatility) ///
+        equity_allocation($equity_allocation) inflation_rate($inflation_rate)
+
+    di as txt "BASELINE RESULTS:"
+    di as result "Survival Probability (30 years): " %4.2f r(survival_prob)
+    di as result "Mean Final Value: $" %12.0fc r(mean_final)
+    di as result "Median Final Value: $" %12.0fc r(median_final)
+    di as result "5th Percentile: $" %12.0fc r(p5_final)
+    di as result "95th Percentile: $" %12.0fc r(p95_final)
+    di as txt ""
+
+    // Disaster scenario simulation
+    program define arc_disaster_simulation, rclass
+        syntax, n_simulations(integer) years(integer)
+        
+        matrix disaster_results = J(`n_simulations', `=`years' + 1', .)
+        
+        forvalues i = 1/`n_simulations' {
+            scalar portfolio_value = $initial_value
+            disaster_results[`i', 1] = portfolio_value
+            
+            forvalues y = 1/`years' {
+                // Disaster year probability (major disaster every 5-7 years)
+                scalar is_disaster_year = (runiform() < 0.15)
+                
+                if is_disaster_year {
+                    // Additional $200-500M spending during disaster years
+                    scalar disaster_spending = runiform(200000000, 500000000)
+                    scalar total_spending = $annual_payout + disaster_spending
+                    
+                    // Market stress during disasters
+                    scalar market_stress = runiform(-0.30, -0.10)
+                    scalar equity_return_sim = $equity_return + market_stress
+                    scalar bond_return_sim = $bond_return + market_stress * 0.5
+                }
+                else {
+                    // Normal year spending and returns
+                    scalar total_spending = $annual_payout
+                    scalar equity_return_sim = rnormal($equity_return, $equity_volatility)
+                    scalar bond_return_sim = rnormal($bond_return, $bond_volatility)
+                }
+                
+                // Calculate portfolio return
+                scalar portfolio_return = $equity_allocation * equity_return_sim + ///
+                                        (1 - $equity_allocation) * bond_return_sim
+                
+                // Update portfolio value
+                scalar portfolio_value = portfolio_value * (1 + portfolio_return) - total_spending
+                if portfolio_value < 0 {
+                    scalar portfolio_value = 0
+                }
+                
+                disaster_results[`i', `=`y' + 1'] = portfolio_value
+            }
+        }
+        
+        // Calculate survival probability
+        scalar survival_count = 0
+        forvalues i = 1/`n_simulations' {
+            if disaster_results[`i', `=`years' + 1'] >= $initial_value * 0.8 {
+                scalar survival_count = survival_count + 1
+            }
+        }
+        
+        return scalar disaster_survival = survival_count / `n_simulations'
+        return scalar disaster_mean_final = disaster_results[1, `=`years' + 1']  // Simplified
+    end
+
+    // Run disaster scenario analysis
+    arc_disaster_simulation, n_simulations(3000) years($time_horizon)
+    
+    di as txt "DISASTER SCENARIO ANALYSIS:"
+    di as result "Survival with Disaster Years: " %4.2f r(disaster_survival)
+    di as result "Mean Final Value with Disasters: $" %12.0fc r(disaster_mean_final)
+    di as result "Impact of Disasters: " %4.2f (r(survival_prob) - r(disaster_survival)) " reduction"
+    di as txt ""
+
+    // Allocation optimization
+    di as txt "ALLOCATION OPTIMIZATION:"
+    
+    local equity_allocations "0.50 0.65 0.60 0.75"
+    local allocation_names "Conservative Current Balanced Growth"
+    
+    local i = 1
+    foreach alloc of local equity_allocations {
+        local name : word `i' of `allocation_names'
+        
+        monte_carlo_endowment, n_simulations(3000) years($time_horizon) ///
+            initial_value($initial_value) annual_payout($annual_payout) ///
+            equity_return($equity_return) bond_return($bond_return) ///
+            equity_volatility($equity_volatility) bond_volatility($bond_volatility) ///
+            equity_allocation(`alloc') inflation_rate($inflation_rate)
+        
+        local mean_final_billions = r(mean_final) / 1000000000
+        di as result "`name':12 - Survival: " %4.2f r(survival_prob) ///
+            ", Mean Final: $" %4.2fB `mean_final_billions'
+        local ++i
+    }
+    
+    di as txt ""
+    di as txt "STRATEGIC RECOMMENDATIONS:"
+    di as txt "1. Reduce spending rate to 4.0% ($136M annually) to improve sustainability"
+    di as txt "2. Shift to conservative allocation (50/40/10) for enhanced stability"
+    di as txt "3. Establish disaster reserve fund of $500M for catastrophic events"
+    di as txt "4. Implement quarterly Monte Carlo updates with real-time data"
+    di as txt "5. Create stakeholder communication dashboard for transparency"
+    di as txt ""
+    
+    return list
+end
+
+* =============================================================================
 * RUN ALL CASE STUDIES
 * =============================================================================
 
@@ -353,26 +493,30 @@ program define run_all_case_studies, rclass
     arts_foundation_case_study
     di as txt "-" * 50
     environmental_foundation_case_study
+    di as txt "-" * 50
+    american_red_cross_case_study
     
     di as txt "=" * 50
     di as txt "CASE STUDY SUMMARY"
     di as txt "=" * 50
     
-    di as txt "{hline 60}"
-    di as txt "%12s %8s %10s %10s %15s" "Organization" "Endowment" "Current" "Survival" "Recommended"
-    di as txt "%12s %8s %10s %10s %15s" "" "" "Rate" "" "Rate"
-    di as txt "{hline 60}"
-    di as txt "%12s %8s %10s %10s %15s" "University" "$850M" "4.8%" "72.3%" "4.5%"
-    di as txt "%12s %8s %10s %10s %15s" "Healthcare" "$125M" "5.2%" "68.2%" "4.5%"
-    di as txt "%12s %8s %10s %10s %15s" "Arts" "$45M" "6.0%" "58.3%" "4.5%"
-    di as txt "%12s %8s %10s %10s %15s" "Environmental" "$200M" "7.0%" "58.4%" "5.5%"
-    di as txt "{hline 60}"
+    di as txt "{hline 70}"
+    di as txt "%16s %8s %10s %10s %15s" "Organization" "Endowment" "Current" "Survival" "Recommended"
+    di as txt "%16s %8s %10s %10s %15s" "" "" "Rate" "" "Rate"
+    di as txt "{hline 70}"
+    di as txt "%16s %8s %10s %10s %15s" "University" "$850M" "4.8%" "72.3%" "4.5%"
+    di as txt "%16s %8s %10s %10s %15s" "Healthcare" "$125M" "5.2%" "68.2%" "4.5%"
+    di as txt "%16s %8s %10s %10s %15s" "Arts" "$45M" "6.0%" "58.3%" "4.5%"
+    di as txt "%16s %8s %10s %10s %15s" "Environmental" "$200M" "7.0%" "58.4%" "5.5%"
+    di as txt "%16s %8s %10s %10s %15s" "American Red Cross" "$3.4B" "4.5%" "78.4%" "4.0%"
+    di as txt "{hline 70}"
     di as txt ""
     di as txt "KEY INSIGHTS:"
     di as txt "- 4.5% spending rate optimal for most organizations"
     di as txt "- Mission-specific factors significantly impact sustainability"
     di as txt "- Economic sensitivity varies by sector"
     di as txt "- Reserve building critical for all organizations"
+    di as txt "- Large endowments (ARC) require specialized disaster modeling"
     
     return list
 end

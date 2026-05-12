@@ -378,6 +378,138 @@ class CaseStudyExamples:
         return climate_mc.run_simulation(years=15)
     
     @staticmethod
+    def american_red_cross_case_study():
+        """
+        American Red Cross Case Study
+        Organization: American Red Cross
+        Endowment: $3.4 billion
+        Current Spending: 4.5% annually ($153M)
+        Mission: Disaster relief, blood services, health & safety training
+        Challenge: Unpredictable disaster cycles, regulatory requirements, public trust
+        """
+        print("=== AMERICAN RED CROSS CASE STUDY ===")
+        print("Organization: American Red Cross")
+        print("Endowment: $3.4 billion")
+        print("Current Spending: 4.5% annually ($153M)")
+        print("Mission: Disaster relief, blood services, health & safety training")
+        print("Challenge: Unpredictable disaster cycles, regulatory requirements, public trust")
+        print()
+        
+        # American Red Cross specific parameters
+        arc_mc = EndowmentSustainabilityMonteCarlo(
+            initial_value=3400000000,     # $3.4B endowment
+            annual_payout=153000000,      # $153M annual spending (4.5%)
+            equity_return=0.085,          # Historical equity return
+            bond_return=0.035,            # Conservative bond return
+            equity_volatility=0.18,       # Higher volatility for larger portfolio
+            bond_volatility=0.06,         # Lower bond volatility
+            equity_allocation=0.65,       # Current allocation
+            inflation_rate=0.028,         # Recent inflation trend
+            n_simulations=5000            # High accuracy for large endowment
+        )
+        
+        # Run 30-year simulation
+        results = arc_mc.run_simulation(years=30)
+        
+        print("BASELINE RESULTS:")
+        print(f"Survival Probability (30 years): {results['survival_probability']:.2%}")
+        print(f"Mean Final Value: ${results['mean_final']:,.0f}")
+        print(f"Median Final Value: ${results['median_final']:,.0f}")
+        print(f"5th Percentile: ${results['p5_final']:,.0f}")
+        print(f"95th Percentile: ${results['p95_final']:,.0f}")
+        print()
+        
+        # Disaster scenario modeling
+        def arc_disaster_simulation(n_simulations=3000, years=30):
+            """Simulate ARC endowment with unpredictable disaster years"""
+            
+            disaster_data = []
+            
+            for sim in range(n_simulations):
+                portfolio_value = 3400000000
+                year_values = [portfolio_value]
+                
+                for year in range(years):
+                    # Disaster year probability (major disaster every 5-7 years)
+                    is_disaster_year = np.random.random() < 0.15
+                    
+                    if is_disaster_year:
+                        # Additional $200-500M spending during disaster years
+                        disaster_spending = np.random.uniform(200000000, 500000000)
+                        total_spending = 153000000 + disaster_spending
+                        
+                        # Market stress during disasters (reduced returns)
+                        market_stress = np.random.uniform(-0.10, -0.30)
+                        equity_return_sim = 0.085 + market_stress
+                        bond_return_sim = 0.035 + market_stress * 0.5
+                    else:
+                        # Normal year spending and returns
+                        total_spending = 153000000
+                        equity_return_sim = np.random.normal(0.085, 0.18)
+                        bond_return_sim = np.random.normal(0.035, 0.06)
+                    
+                    # Calculate portfolio return
+                    portfolio_return = 0.65 * equity_return_sim + 0.35 * bond_return_sim
+                    
+                    # Update portfolio value
+                    portfolio_value = portfolio_value * (1 + portfolio_return) - total_spending
+                    if portfolio_value < 0:
+                        portfolio_value = 0
+                    
+                    year_values.append(portfolio_value)
+                
+                disaster_data.append(year_values)
+            
+            return np.array(disaster_data)
+        
+        # Run disaster scenario analysis
+        disaster_results = arc_disaster_simulation()
+        disaster_survival = np.mean(disaster_results[:, -1] >= 3400000000 * 0.8)
+        
+        print("DISASTER SCENARIO ANALYSIS:")
+        print(f"Survival with Disaster Years: {disaster_survival:.2%}")
+        print(f"Mean Final Value with Disasters: ${np.mean(disaster_results[:, -1]):,.0f}")
+        print(f"Impact of Disasters: {results['survival_probability'] - disaster_survival:.2%} reduction")
+        print()
+        
+        # Allocation optimization
+        print("ALLOCATION OPTIMIZATION:")
+        allocation_scenarios = [
+            {"name": "Conservative", "equity": 0.50, "bonds": 0.40, "alts": 0.10},
+            {"name": "Current", "equity": 0.65, "bonds": 0.25, "alts": 0.10},
+            {"name": "Balanced", "equity": 0.60, "bonds": 0.30, "alts": 0.10},
+            {"name": "Growth", "equity": 0.75, "bonds": 0.15, "alts": 0.10}
+        ]
+        
+        for alloc in allocation_scenarios:
+            mc = EndowmentSustainabilityMonteCarlo(
+                initial_value=3400000000,
+                annual_payout=153000000,
+                equity_return=0.085,
+                bond_return=0.035,
+                equity_volatility=0.18,
+                bond_volatility=0.06,
+                equity_allocation=alloc["equity"],
+                inflation_rate=0.028,
+                n_simulations=3000
+            )
+            
+            alloc_results = mc.run_simulation(years=30)
+            print(f"{alloc['name']:12} - Survival: {alloc_results['survival_probability']:.2%}, "
+                  f"Mean Final: ${alloc_results['mean_final']/1e9:,.2f}B")
+        
+        print()
+        print("STRATEGIC RECOMMENDATIONS:")
+        print("1. Reduce spending rate to 4.0% ($136M annually) to improve sustainability")
+        print("2. Shift to conservative allocation (50/40/10) for enhanced stability")
+        print("3. Establish disaster reserve fund of $500M for catastrophic events")
+        print("4. Implement quarterly Monte Carlo updates with real-time data")
+        print("5. Create stakeholder communication dashboard for transparency")
+        print()
+        
+        return results
+    
+    @staticmethod
     def run_all_case_studies():
         """Run all case studies and return summary results"""
         print("RUNNING ALL CASE STUDIES")
@@ -394,6 +526,8 @@ class CaseStudyExamples:
         results['arts'] = CaseStudyExamples.arts_foundation_case_study()
         print("-" * 50)
         results['environmental'] = CaseStudyExamples.environmental_foundation_case_study()
+        print("-" * 50)
+        results['american_red_cross'] = CaseStudyExamples.american_red_cross_case_study()
         
         print("=" * 50)
         print("CASE STUDY SUMMARY")
@@ -404,11 +538,12 @@ class CaseStudyExamples:
             ["University", "$850M", "4.8%", f"{results['university']['survival_probability']:.1%}", "4.5%"],
             ["Healthcare", "$125M", "5.2%", f"{results['healthcare']['survival_probability']:.1%}", "4.5%"],
             ["Arts", "$45M", "6.0%", f"{results['arts']['survival_probability']:.1%}", "4.5%"],
-            ["Environmental", "$200M", "7.0%", f"{results['environmental']['survival_probability']:.1%}", "5.5%"]
+            ["Environmental", "$200M", "7.0%", f"{results['environmental']['survival_probability']:.1%}", "5.5%"],
+            ["American Red Cross", "$3.4B", "4.5%", f"{results['american_red_cross']['survival_probability']:.1%}", "4.0%"]
         ]
         
         for row in summary_data:
-            print(f"{row[0]:12} {row[1]:8} {row[2]:10} {row[3]:10} {row[4]:15}")
+            print(f"{row[0]:16} {row[1]:8} {row[2]:10} {row[3]:10} {row[4]:15}")
         
         print()
         print("KEY INSIGHTS:")
@@ -416,6 +551,7 @@ class CaseStudyExamples:
         print("- Mission-specific factors significantly impact sustainability")
         print("- Economic sensitivity varies by sector")
         print("- Reserve building critical for all organizations")
+        print("- Large endowments (ARC) require specialized disaster modeling")
         
         return results
 
@@ -436,6 +572,10 @@ def run_arts_case_study():
 def run_environmental_case_study():
     """Quick function to run environmental case study"""
     return CaseStudyExamples.environmental_foundation_case_study()
+
+def run_american_red_cross_case_study():
+    """Quick function to run American Red Cross case study"""
+    return CaseStudyExamples.american_red_cross_case_study()
 
 def run_all_case_studies():
     """Quick function to run all case studies"""

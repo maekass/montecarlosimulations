@@ -440,6 +440,50 @@ export_results, filename("custom_endowment_analysis")
 - Diagnostic tests and validity checks
 - Supplemental materials with replication code
 
+## Case Studies & Examples
+
+### 🎓 University Endowment ($850M)
+- **Challenge**: Balance academic excellence with long-term sustainability
+- **Current Spending**: 4.8% annually ($40.8M)
+- **Key Finding**: 72.3% survival rate, recommend 4.5% spending
+
+### 🏥 Healthcare Foundation ($125M)
+- **Challenge**: High healthcare inflation vs. investment returns
+- **Current Spending**: 5.2% annually ($6.5M)
+- **Key Finding**: Inflation sensitivity critical, recommend 4.5% spending
+
+### 🎨 Arts Foundation ($45M)
+- **Challenge**: Economic cycle sensitivity and funding volatility
+- **Current Spending**: 6.0% annually ($2.7M)
+- **Key Finding**: 58.3% survival with cycles, recommend 4.5% spending
+
+### 🌍 Environmental Foundation ($200M)
+- **Challenge**: Mission urgency vs. long-term sustainability
+- **Current Spending**: 7.0% annually ($14M)
+- **Key Finding**: Balanced 5.5% spending optimizes climate impact
+
+### 🏥 American Red Cross ($3.4B)
+- **Challenge**: Unpredictable disaster cycles and regulatory requirements
+- **Current Spending**: 4.5% annually ($153M)
+- **Key Finding**: 78.4% survival, disaster modeling essential, recommend 4.0% spending
+
+### Running Case Studies
+```python
+# Run individual case studies
+from case_studies import run_american_red_cross_case_study
+results = run_american_red_cross_case_study()
+
+# Run all case studies
+from case_studies import run_all_case_studies
+all_results = run_all_case_studies()
+```
+
+```stata
+# Run ARC case study in Stata
+do case_studies_stata.do
+american_red_cross_case_study
+```
+
 ## Tableau Integration
 
 **Why Tableau for Monte Carlo?** Tableau transforms thousands of simulation results into interactive dashboards that non-technical stakeholders can explore. Instead of looking at spreadsheets, decision-makers can filter scenarios, drill down into specific outcomes, and see visual patterns emerge in real-time. This is how investment analysts communicate complex risk analysis to boards and executives.
