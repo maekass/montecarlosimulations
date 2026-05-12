@@ -31,6 +31,86 @@ Specialized Monte Carlo tools for non-profit endowment management:
 - **End Value Distribution** - A range of potential final values rather than a single average estimate, providing a spectrum of risk
 - **Median Outcome** - The most likely outcome, along with worst-case and best-case scenarios
 
+## Multi-Language Implementations
+
+This project demonstrates Monte Carlo simulations across multiple programming languages to showcase versatility and technical breadth:
+
+### Python Implementation
+
+```python
+from monte_carlo_simulations import EndowmentSustainabilityMonteCarlo
+
+endowment_mc = EndowmentSustainabilityMonteCarlo(
+    initial_value=10000000,
+    annual_payout=315000,
+    equity_return=0.08,
+    bond_return=0.04,
+    equity_volatility=0.16,
+    bond_volatility=0.08,
+    equity_allocation=0.70,
+    inflation_rate=0.03
+)
+
+results = endowment_mc.run_simulation(years=20)
+print(f"Survival Probability: {results['survival_probability']:.2%}")
+```
+
+### SQL Implementation (PostgreSQL)
+
+```sql
+-- Insert endowment parameters
+INSERT INTO endowment_parameters (
+    initial_value, annual_payout, equity_allocation,
+    equity_return_mean, equity_return_std,
+    bond_return_mean, bond_return_std,
+    inflation_rate, time_horizon
+) VALUES (10000000, 315000, 0.70, 0.08, 0.16, 0.04, 0.08, 0.03, 20);
+
+-- Run Monte Carlo simulation
+SELECT * FROM run_endowment_monte_carlo(1000, 20);
+
+-- Calculate survival probability
+SELECT calculate_survival_probability(0.80);
+```
+
+### Julia Implementation
+
+```julia
+endowment_mc = EndowmentSustainabilityMonteCarlo(
+    initial_value=10_000_000.0,
+    annual_payout=315_000.0,
+    equity_return=0.08,
+    bond_return=0.04,
+    equity_volatility=0.16,
+    bond_volatility=0.08,
+    equity_allocation=0.70,
+    inflation_rate=0.03,
+    n_simulations=5000
+)
+
+endowment_values = simulate_endowment(endowment_mc, 20)
+survival_probability = mean(endowment_values[:, end] .>= endowment_mc.initial_value * 0.8)
+```
+
+### Ruby Implementation
+
+```ruby
+endowment_mc = MonteCarlo::EndowmentSustainability.new(
+  initial_value: 10_000_000.0,
+  annual_payout: 315_000.0,
+  equity_return: 0.08,
+  bond_return: 0.04,
+  equity_volatility: 0.16,
+  bond_volatility: 0.08,
+  equity_allocation: 0.70,
+  inflation_rate: 0.03,
+  n_simulations: 5000
+)
+
+results = endowment_mc.run(years: 20)
+puts "Survival Probability: #{(results[:survival_probability] * 100).round(2)}%"
+```
+
 ## Installation
 
 ```bash
