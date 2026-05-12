@@ -1,5 +1,9 @@
 # Monte Carlo Simulations Portfolio
 
+## Abstract
+
+This project addresses a critical gap in the application of advanced statistical and quantitative tools within impact investing and non-profit endowment management. While sophisticated Monte Carlo simulations, Bayesian methods, and machine learning techniques are standard practice in equity markets, private equity, and venture capital—where they drive portfolio optimization, risk management, and strategic decision-making—these tools remain significantly underutilized in the non-profit sector. Traditional endowment and impact investment approaches often rely on static assumptions, deterministic projections, and heuristic risk assessments that fail to capture the complex, non-linear dynamics inherent in long-term capital stewardship under uncertainty. This repository demonstrates the application of advanced quantitative methods—including Bayesian Monte Carlo simulation, Latin Hypercube Sampling, machine learning-based path generation, and outcome clustering—to non-profit endowment management, providing a framework for more robust decision-making under uncertainty. By bridging the methodological divide between for-profit quantitative finance and non-profit capital stewardship, this work aims to elevate the analytical sophistication of impact investing and endowment management, ultimately enabling more sustainable mission-driven outcomes through better-informed risk assessment and strategic planning.
+
 A comprehensive collection of Monte Carlo simulation implementations for finance, risk management, and decision analysis, with specialized tools for non-profit endowment management.
 
 ## Overview
